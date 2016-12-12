@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title></title>
+  <style>
+    body{
+      text-align: center;
+    }
+    #c1{
+      background: #f09a04;
+    }
+    .playerWin {
+      display:none;
+      background:#f0f0f0;
+      position:absolute;
+      width:200px;
+      height:100px;
+      left:50%;
+      top:50%;
+      margin-left:-100px;
+      margin-top:-50px;
+      border:1px solid #ccc;
+      opacity: .7;
+    }
+    .conputerWin{
+      display:none;
+      background:#f09090;
+      position:absolute;
+      width:300px;
+      height:200px;
+      left:50%;
+      top:100px;
+      margin-left:-150px;
+      margin-top:100px;
+      border:1px solid #ccc;
+      opacity: .7;
+      font-size: 20px;
+      color:red;
+    }
+    .btn{
+      margin-bottom:10px;
+      background: #88aaf2;
+     width:80px;
+      padding:5px 0px;
+      border:1px solid #555;
+      border-radius:2px;
+    }
+  </style>
+</head>
+<body>
+<h2>五子棋3.1功能强化版</h2>
+<button id="regret" class="btn">悔棋</button>
+<button id="restart" class="btn">重新开始</button>
+<br/>
+<canvas id="c1" width="600" height="600"></canvas>
+<div class="playerWin" id="playerWin">
+  <p>厉害了我的哥！赢了</p>
+  <br/>
+  <button id="gameBegin">继续</button>
+
+</div>
+<div class="conputerWin" id="computerWin">
+  <p>咸鱼！电脑赢了</p>
+  <br/>
+  <button id="gameBeg">继续</button>
+</div>
+  <script src="js/fivechess_04.js"></script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title></title>
+  <style>
+    body{
+      text-align: center;
+    }
+    #c1{
+      background: #f09a04;
+    }
+    .playerWin {
+      display:none;
+      background:#f0f0f0;
+      position:absolute;
+      width:200px;
+      height:100px;
+      left:50%;
+      top:50%;
+      margin-left:-100px;
+      margin-top:-50px;
+      border:1px solid #ccc;
+      opacity: .7;
+    }
+  </style>
+</head>
+<body>
+<h2>五子棋1.0</h2>
+<canvas id="c1" width="600" height="600"></canvas>
+<div class="playerWin" id="playerWin">
+  <p>恭喜你！赢了</p>
+  <br/>
+  <button id="gameBegin">继续</button>
+</div>
+<div class="playerWin" id="computerWin">
+  <p>真可惜！电脑赢了</p>
+  <br/>
+  <button id="gameBeg">继续</button>
+</div>
+  <script src="js/fivechess-01.js"></script>
+</body>
+</html>
