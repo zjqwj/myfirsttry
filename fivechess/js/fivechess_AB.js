@@ -13,7 +13,7 @@
   BLOCKED_THREE: 100,
   BLOCKED_FOUR: 10000
 }
-
+const level = 4;
  /**
   * board: 棋盘 二位数组， 宽高默认15， 棋子颜色，1为黑色。2为白色
   * boardOption this对象
@@ -141,36 +141,67 @@
       this.y = y
    }
  }
+// 当alpha<=beta时剪枝
+//  function alpha_beta_pruning(node, alpha, beta, who){
+//   if(position->left == NULL){
+//     return position->value;	
+//     }
+    
+//     if(who){// max
+//     int max1 = INT_MIN;
+//     int value = alpha_beta_pruning(position->left,alpha,beta,false);
+//     max1 = std::max(value,max1);
+//     alpha = std::max(alpha,max1);
+//     if(beta <= alpha){
+//       delete_subtree(position->right);  //剪枝只发生在右边
+//       position->right = NULL;
+//       return max1;
+//     } 
+    
+//     value = alpha_beta_pruning(position->right,alpha,beta,false);
+//     max1 = std::max(value,max1);
+//     return max1;
+    
+//     }
+//     else {//min
+//     int min1 = INT_MAX;
+//     int value = alpha_beta_pruning(position->left,alpha,beta,true);
+//     min1 = std::min(value,min1);
+//     beta = std::min(beta,min1);
+//     if(beta <= alpha){
+//       delete_subtree(position->right);  //剪枝只发生在右边
+//       position->right = NULL;
+//       return min1;
+//     }
+    
+//     value = alpha_beta_pruning(position->right,alpha,beta,true);
+//     min1 = std::min(value,min1);
+//     return min1;
+//     }
+// 剪枝时delete函数
+// void delete_subtree(Node* position) {
+//   if (position -> left != NULL){
+//     delete_subtree(position -> left);
+//     position -> left = NULL;
+//   }
+//   if (position -> right != NULL){
+//     delete_subtree(position -> right);
+//     position -> right = NULL;
+//   }
+//   delete position; 
+// }
+
+
  function ABjianzhi(board) {
     let cloneBD = cloneBoard(board);
  
     let root = new Tree(calcScore(cloneBD))
-    let linshiMax = null;
-    // 走子，评价，再走子，评价 n层
-    for (let i =0;i<board.length;i++){
-      for (let j =0;j<board.length;j++) {
-        if (cloneBD[i][j]===0) { // 空白的地方可走
-          // 走子
-          let movedBoard = moveBoard(cloneBD, 2, i,j) // 走黑子 、、 电脑走白子，
-          // let score = calcScore(movedBoard) // 评价分数
-          let node = new Tree(0,i,j)
-          root.children.push(node);
-          // 继续往深走一步
-          dfs(movedBoard, node, linshiMax);
-          let minNode = Min(node);
-          node.value = minNode.value;
-          if (linshiMax===null || node.value> linshiMax) {
-
-            linshiMax = node.value;
-          }
-          // 恢复棋盘
-          moveBoard(cloneBD, 0, i,j) 
-        }
-      }
-    }
-    let maxNode = Max(root);
+    let alpha = -Infinity; // 极大值
+    let beta = Infinity; // 极小值
+    let maxNode = dfs(cloneBD, root, alpha, beta, true);
+  
     root.value = maxNode.value;
-    console.log(root.value)
+    console.log(root)
     let {x , y } = maxNode
     root = null;
     return {
@@ -178,23 +209,51 @@
       y: y
     }
  }
- function dfs(board, root, linshiMax) {
+ function dfs(board, root, alpha, beta, who) {
   for (let i =0;i<board.length;i++){
     for (let j =0;j<board.length;j++) {
       if (board[i][j]===0) { // 空白的地方可走
-        // 走子
-        let movedBoard = moveBoard(board, 1, i,j) // 走黑子 、、 电脑走白子，
-        let score = calcScore(movedBoard) // 评价分数
-      
-        let node = new Tree(score,i,j)
-        root.children.push(node);
-        // 恢复棋盘
-        moveBoard(board, 0, i,j) 
-        if (linshiMax!==null && score < linshiMax) {
-          return 
+        if (who) { // 极大值
+          // 走子
+          let movedBoard = moveBoard(board, 2, i,j) // 走黑子 、、 电脑走白子，
+          let score = calcScore(movedBoard) // 评价分数
+          let node = new Tree(score,i,j)
+          root.children.push(node);
+          if (score > alpha) {
+            alpha = score;
+          }
+          let minNode = dfs(movedBoard, node, alpha, beta, false)
+          // let minNode = Min(node);
+          node.value = minNode.value;
+          // 恢复棋盘
+          moveBoard(board, 0, i,j) 
+         
+        } else { // 极小值
+            // 走子
+            let movedBoard = moveBoard(board, 1, i,j) // 走黑子 、、 电脑走白子，
+            let score = calcScore(movedBoard) // 评价分数
+            let node = new Tree(score,i,j)
+            root.children.push(node);
+            // dfs(board, root, alpha, beta, true)
+            // let maxNode = Max(node);
+            // node.value = maxNode.value;
+            // 恢复棋盘
+            if (score < beta) {
+              beta = score;
+            }
+            moveBoard(board, 0, i,j) 
+            // if (score < alpha) {
+            //   return maxNode
+            // }
         }
+       
       }
     }
+  }
+  if (who) {
+    return Max(root);
+  }else {
+    return Min(root);
   }
  }
  function Max(node) {
