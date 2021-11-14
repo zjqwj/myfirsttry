@@ -264,7 +264,7 @@ var game = {
     //console.log(rni,rnj);
     //console.dir(chess);
     that.chess[rni][rnj]=2;//随机生成一白个子
-	that.updateView(that);
+	  that.updateView(that);
     c1.onclick = function (e) {
       var x1 = e.offsetX;
       var y1 = e.offsetY;

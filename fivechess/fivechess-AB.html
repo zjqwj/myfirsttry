@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title></title>
+  <style>
+    body{
+      text-align: center;
+    }
+    #c1{
+      background: #f09a04;
+    }
+    .pWin {
+      display:none;
+      background:#f0f0f0;
+      position:absolute;
+      width:200px;
+      height:100px;
+      left:50%;
+      top:50%;
+      margin-left:-100px;
+      margin-top:-50px;
+      border:1px solid #ccc;
+      opacity: .7;
+    }
+    .cWin{
+      display:none;
+      background:#eee;
+      position:absolute;
+      width:200px;
+      height:100px;
+      left:50%;
+      top:50%;
+      margin-left:-100px;
+      margin-top:-50px;
+      border:1px solid #ccc;
+      opacity: .7;
+      font-size: 20px;
+    }
+    .btn{
+      margin-bottom:10px;
+      background: #88aaf2;
+      width:80px;
+      padding:5px 0px;
+      border:1px solid #555;
+      border-radius:3px;
+    }
+    .container{
+      width: 240px;
+      height:70px;
+      border:2px solid #eee;
+      position:absolute;
+      top:50%;
+      left:50%;
+      margin-left: -100px;
+      margin-top:-35px;
+      border-radius: 5px;
+      background:#31b0d5;
+    }
+  </style>
+</head>
+<body>
+<h2>五子棋4.0</h2>
+<button id="regret" class="btn">悔棋</button>
+<button id="restart" class="btn">重新开始</button>
+<br/>
+<canvas id="c1" width="600" height="600">您的浏览器不支持canvas标签</canvas>
+<div class="container" id="choosePattern">
+  <br/>
+  <button class="btn" id="pve">人机对战</button>
+  <button class="btn" id="pvp">玩家对战</button>
+</div>
+<div class="pWin" id="pWin">
+  <p>厉害了我的哥！赢了</p>
+  <br/>
+  <button id="gameBegin">继续</button>
+</div>
+<div class="pWin" id="black">
+  <p>厉害了我的哥！黑子赢了</p>
+  <br/>
+  <button id="btnBlack">继续</button>
+</div>
+<div class="pWin" id="white">
+  <p>厉害了我的哥！白子赢了</p>
+  <br/>
+  <button id="btnWhite">继续</button>
+</div>
+<div class="cWin" id="cWin">
+  <p>咸鱼！电脑赢了</p>
+  <button id="gameBeg">继续</button>
+</div>
+<script src="js/fivechess_AB.js"></script>
+</body>
+</html>
