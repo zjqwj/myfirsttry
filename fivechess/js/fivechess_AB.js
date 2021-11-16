@@ -141,6 +141,16 @@ const level = 4;
       this.y = y
    }
  }
+ class Leaf {
+  score=  -Infinity;
+  step;
+  steps;
+  constructor(score,step,steps){
+      this.score = score;
+      this.step = step;
+      this.steps = steps
+   }
+ }
 // 当alpha<=beta时剪枝
 //  function alpha_beta_pruning(node, alpha, beta, who){
 //   if(position->left == NULL){
@@ -190,80 +200,139 @@ const level = 4;
 //   }
 //   delete position; 
 // }
+var threshold = 1.15
 
+var equal = function(a, b) {
+  b = b || 0.01
+  return b >= 0 ? ((a >= b / threshold) && (a <= b * threshold))
+          : ((a >= b * threshold) && (a <= b / threshold))
+}
+var greatThan = function(a, b) {
+  return b >= 0 ? (a >= (b+0.1) * threshold) : (a >= (b+0.1) / threshold) // 注意处理b为0的情况，通过加一个0.1 做简单的处理
+}
+var greatOrEqualThan = function(a, b) {
+  return equal(a, b) || greatThan(a, b)
+}
+var r = function(deep, alpha, beta, role, step, steps, spread) {
+  var _e = board.evaluate(role)
+
+  var leaf = {
+    score: _e,
+    step: step,
+    steps: steps
+  }
+  if (!deep) {
+    return leaf
+  }
+  
+  var best = {
+    score: MIN,
+    step: step,
+    steps: steps
+  }
+  // 双方个下两个子之后，开启star spread 模式
+  var points = board.gen(role, step > 1, step > 1)
+
+  if (!points.length) return leaf
+
+  for(var i=0;i<points.length;i++) {
+    var p = points[i]
+    board.put(p, role)
+
+    var _deep = deep-1
+
+    var _spread = spread
+
+    var _steps = steps.slice(0)
+    _steps.push(p)
+    var v = r(_deep, -beta, -alpha, R.reverse(role), step+1, _steps, _spread)
+    v.score *= -1
+    board.remove(p)
+ 
+
+    // 注意，这里决定了剪枝时使用的值必须比MAX小
+    if(v.score > best.score) {
+      best = v
+    }
+    alpha = Max(best.score, alpha)
+    //AB 剪枝
+   
+    if(greatOrEqualThan(v.score, beta)) {
+      // AB 剪枝，不用进行接下来的遍历了，直接返回
+      return v
+    }
+  }
+  return best
+}
 
  function ABjianzhi(board) {
     let cloneBD = cloneBoard(board);
  
-    let root = new Tree(calcScore(cloneBD))
     let alpha = -Infinity; // 极大值
     let beta = Infinity; // 极小值
-    let maxNode = dfs(cloneBD, root, alpha, beta, true);
-  
-    root.value = maxNode.value;
-    console.log(root)
-    let {x , y } = maxNode
-    root = null;
+    let maxNode = dfs(cloneBD, 2, alpha, beta, 2, 0, []); 
+    console.log(maxNode)
+    let {x , y } = maxNode.steps[0]
+   
     return {
       x: x,
       y: y
     }
  }
- function dfs(board, root, alpha, beta, who) {
+ function reverseRole(role) {
+   return role === 1?2:1;
+ }
+ function dfs(board, deep, alpha, beta, role, step, steps) {
+  let score = calcScore(board) // 评价分数
+  let node = new Leaf(score,step,steps)
+  if (deep<=0) {
+    return node
+  }
+  var best = new Leaf(-Infinity,step,steps)
+  var points = genPoints(role, board)
+  if (!points.length) return leaf
+  for (var i = 0;i<points.length;i++) {
+    var p = points[i]
+    putBoard(board, p);
+ 
+    var _deep = deep-1
+    var _steps = steps.slice(0)
+    _steps.push(p)
+    var v = dfs(board,_deep, -beta, -alpha, reverseRole(role), step+1, _steps )
+    v.score *= -1
+    removeBoard(board,p);
+    // 注意，这里决定了剪枝时使用的值必须比MAX小
+    if(v.score > best.score) {
+      best = v
+    }
+    alpha = Max(best.score, alpha)
+    // //AB 剪枝
+    if(greatOrEqualThan(v.score, beta)) {
+      // AB 剪枝，不用进行接下来的遍历了，直接返回
+      // console.log(v,'剪枝成功', beta)
+      return v
+    }
+  }
+   return best;    
+       
+ }
+ function genPoints(role,board) {
+  let points = [];
   for (let i =0;i<board.length;i++){
     for (let j =0;j<board.length;j++) {
       if (board[i][j]===0) { // 空白的地方可走
-        if (who) { // 极大值
-          // 走子
-          let movedBoard = moveBoard(board, 2, i,j) // 走黑子 、、 电脑走白子，
-          let score = calcScore(movedBoard) // 评价分数
-          let node = new Tree(score,i,j)
-          root.children.push(node);
-          if (score > alpha) {
-            alpha = score;
-          }
-          let minNode = dfs(movedBoard, node, alpha, beta, false)
-          // let minNode = Min(node);
-          node.value = minNode.value;
-          // 恢复棋盘
-          moveBoard(board, 0, i,j) 
-         
-        } else { // 极小值
-            // 走子
-            let movedBoard = moveBoard(board, 1, i,j) // 走黑子 、、 电脑走白子，
-            let score = calcScore(movedBoard) // 评价分数
-            let node = new Tree(score,i,j)
-            root.children.push(node);
-            // dfs(board, root, alpha, beta, true)
-            // let maxNode = Max(node);
-            // node.value = maxNode.value;
-            // 恢复棋盘
-            if (score < beta) {
-              beta = score;
-            }
-            moveBoard(board, 0, i,j) 
-            // if (score < alpha) {
-            //   return maxNode
-            // }
-        }
-       
+        points.push({
+          x: i,
+          y: j,
+          role: role
+        })
       }
     }
   }
-  if (who) {
-    return Max(root);
-  }else {
-    return Min(root);
-  }
+  return points
  }
- function Max(node) {
-    let maxNode = null;
-    node.children.forEach(node=>{
-      if (!maxNode ||node.value > maxNode.value) {
-        maxNode = node
-      }
-    })
-    return maxNode;
+ function Max(a,b) {
+    return a>b?a:b;
  }
  function Min(node) {
   let minNode = null;
@@ -286,9 +355,13 @@ const level = 4;
 
    return cloneBoard;
  }
+ function putBoard(board, p) {
+  board[p.x][p.y] = p.role;
+  return board
+ }
  // 走子函数
- function moveBoard(board, value, x,y) {
-  board[x][y] = value;
+ function removeBoard(board, p) {
+  board[p.x][p.y] = 0;
 
   return board;
  }
